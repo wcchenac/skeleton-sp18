@@ -9,7 +9,7 @@ import java.util.Set;
  *
  *  @author Your name here
  */
-public class MyHashMap<K, V> implements Map61B<K, V> {
+public class MyHashMap<K, V> implements Map61B<K, V>, Iterable<K> {
 
     private static final int DEFAULT_SIZE = 16;
     private static final double MAX_LF = 0.75;
@@ -17,8 +17,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private ArrayMap<K, V>[] buckets;
     private int size;
 
-    private int loadFactor() {
-        return size / buckets.length;
+    private double loadFactor() {
+        return (double) size / buckets.length;
     }
 
     public MyHashMap() {
@@ -35,9 +35,10 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         }
     }
 
-    /** Computes the hash function of the given key. Consists of
-     *  computing the hashcode, followed by modding by the number of buckets.
-     *  To handle negative numbers properly, uses floorMod instead of %.
+    /**
+     * Computes the hash function of the given key. Consists of
+     * computing the hashcode, followed by modding by the number of buckets.
+     * To handle negative numbers properly, uses floorMod instead of %.
      */
     private int hash(K key) {
         if (key == null) {
@@ -53,19 +54,50 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+        return buckets[hash(key)].get(key);
     }
 
     /* Associates the specified value with the specified key in this map. */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+        if (buckets[hash(key)].containsKey(key)) {
+            buckets[hash(key)].put(key, value);
+        } else {
+            resize();
+            buckets[hash(key)].put(key, value);
+            size += 1;
+        }
+    }
+
+    private void resize() {
+        if (loadFactor() > MAX_LF) {
+            ArrayMap<K, V>[] temp = buckets;
+
+            // Create new ArrayMap
+            buckets = new ArrayMap[temp.length * 2];
+
+            // Initialize
+            for (int i = 0; i < this.buckets.length; i += 1) {
+                this.buckets[i] = new ArrayMap<>();
+            }
+
+            // Iterate every ArrayMap, and iterate things stored in ArrayMap
+            for (ArrayMap<K, V> bag : temp) {
+                Iterator<K> itr = bag.iterator();
+                while (itr.hasNext()) {
+                    K key = itr.next();
+                    V value = bag.get(key);
+                    int newIndex = hash(key);
+                    buckets[newIndex].put(key, value);
+                }
+            }
+        }
     }
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
