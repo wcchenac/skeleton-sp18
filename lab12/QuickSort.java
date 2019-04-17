@@ -1,4 +1,6 @@
 import edu.princeton.cs.algs4.Queue;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class QuickSort {
     /**
@@ -48,12 +50,76 @@ public class QuickSort {
             Queue<Item> unsorted, Item pivot,
             Queue<Item> less, Queue<Item> equal, Queue<Item> greater) {
         // Your code here!
+	    while (!unsorted.isEmpty()) {
+	    	Item i = unsorted.dequeue();
+	    	if (i.compareTo(pivot) < 0) {
+	    		less.enqueue(i);
+		    } else if (i.compareTo(pivot) > 0) {
+	    		greater.enqueue(i);
+		    } else {
+	    		equal.enqueue(i);
+		    }
+	    }
     }
 
     /** Returns a Queue that contains the given items sorted from least to greatest. */
     public static <Item extends Comparable> Queue<Item> quickSort(
             Queue<Item> items) {
         // Your code here!
+	    if (items.size() <= 1) {
+	    	return items;
+	    }
+	    Queue<Item> less = new Queue<>();
+	    Queue<Item> equal = new Queue<>();
+	    Queue<Item> greater = new Queue<>();
+
+	    partition(items, getRandomItem(items), less, equal, greater);
+
+	    items = catenate(quickSort(less), equal);
+	    items = catenate(items, quickSort(greater));
+
         return items;
     }
+
+    @Test
+	public void testPartition() {
+	    Queue<String> q1 = new Queue<>();
+	    q1.enqueue("monkey");
+	    q1.enqueue("cat");
+	    q1.enqueue("dog");
+	    q1.enqueue("zebra");
+	    q1.enqueue("lion");
+
+	    String pivot = "monkey";
+
+	    Queue<String> less = new Queue<>();
+	    Queue<String> equal = new Queue<>();
+	    Queue<String> greater = new Queue<>();
+	    partition(q1, pivot, less, equal, greater);
+	    assertEquals("monkey", equal.dequeue());
+	    assertEquals("cat", less.dequeue());
+	    assertEquals("dog", less.dequeue());
+	    assertEquals("lion", less.dequeue());
+	    assertEquals("zebra", greater.dequeue());
+    }
+
+	public static void main(String[] argas) {
+		Queue<String> q1 = new Queue<>();
+		q1.enqueue("monkey");
+		q1.enqueue("cat");
+		q1.enqueue("dog");
+		q1.enqueue("zebra");
+		q1.enqueue("lion");
+		q1.enqueue("tiger");
+		q1.enqueue("elephant");
+		q1.enqueue("rabbit");
+		q1.enqueue("pig");
+
+		Queue<String> sorted = QuickSort.quickSort(q1);
+
+		while (!sorted.isEmpty()) {
+			System.out.println(sorted.dequeue());
+		}
+	}
+
 }

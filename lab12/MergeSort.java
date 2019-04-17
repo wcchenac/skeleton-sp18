@@ -1,4 +1,6 @@
 import edu.princeton.cs.algs4.Queue;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class MergeSort {
     /**
@@ -35,7 +37,13 @@ public class MergeSort {
     private static <Item extends Comparable> Queue<Queue<Item>>
             makeSingleItemQueues(Queue<Item> items) {
         // Your code here!
-        return null;
+        Queue<Queue<Item>> all = new Queue<>();
+        while (!items.isEmpty()) {
+            Queue<Item> qu = new Queue<>();
+            qu.enqueue(items.dequeue());
+            all.enqueue(qu);
+        }
+        return all;
     }
 
     /**
@@ -54,13 +62,77 @@ public class MergeSort {
     private static <Item extends Comparable> Queue<Item> mergeSortedQueues(
             Queue<Item> q1, Queue<Item> q2) {
         // Your code here!
-        return null;
+        Queue<Item> sorted = new Queue<>();
+        while (!q1.isEmpty() || !q2.isEmpty()) {
+            sorted.enqueue(getMin(q1,q2));
+        }
+        return sorted;
     }
 
     /** Returns a Queue that contains the given items sorted from least to greatest. */
     public static <Item extends Comparable> Queue<Item> mergeSort(
             Queue<Item> items) {
         // Your code here!
+        Queue<Queue<Item>> all = makeSingleItemQueues(items);
+        while (all.size() != 1) {
+            all.enqueue(mergeSortedQueues(all.dequeue(), all.dequeue()));
+        }
+        items = all.dequeue();
         return items;
+    }
+
+    @Test
+    public void testMakeSingleItemQueue() {
+        Queue<String> q1 = new Queue<>();
+        q1.enqueue("monkey");
+        q1.enqueue("cat");
+        q1.enqueue("dog");
+
+        Queue<Queue<String>> all = MergeSort.makeSingleItemQueues(q1);
+
+        assertEquals("monkey", all.dequeue().dequeue());
+        assertEquals("cat", all.dequeue().dequeue());
+        assertEquals("dog", all.dequeue().dequeue());
+    }
+
+    @Test
+    public void testMergeSortedQueues() {
+        Queue<String> q1 = new Queue<>();
+        q1.enqueue("ant");
+        q1.enqueue("cat");
+        q1.enqueue("zebra");
+
+        Queue<String> q2 = new Queue<>();
+        q2.enqueue("bee");
+        q2.enqueue("dog");
+        q2.enqueue("lion");
+
+        Queue<String> all = MergeSort.mergeSortedQueues(q1,q2);
+
+        assertEquals("ant", all.dequeue());
+        assertEquals("bee", all.dequeue());
+        assertEquals("cat", all.dequeue());
+        assertEquals("dog", all.dequeue());
+        assertEquals("lion", all.dequeue());
+        assertEquals("zebra", all.dequeue());
+    }
+
+    public static void main(String[] argas) {
+        Queue<String> q1 = new Queue<>();
+        q1.enqueue("monkey");
+        q1.enqueue("cat");
+        q1.enqueue("dog");
+        q1.enqueue("zebra");
+        q1.enqueue("lion");
+        q1.enqueue("tiger");
+        q1.enqueue("elephant");
+        q1.enqueue("rabbit");
+        q1.enqueue("pig");
+
+        Queue<String> sorted = MergeSort.mergeSort(q1);
+
+        while (!sorted.isEmpty()) {
+            System.out.println(sorted.dequeue());
+        }
     }
 }
