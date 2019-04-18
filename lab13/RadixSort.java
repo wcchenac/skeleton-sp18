@@ -17,7 +17,48 @@ public class RadixSort {
      */
     public static String[] sort(String[] asciis) {
         // TODO: Implement LSD Sort
-        return null;
+        int inputLength = asciis.length;
+        String[] sorted = new String[inputLength];
+
+        int maxStringLength = 0;
+        for (int i = 0; i < inputLength; i += 1) {
+            int l = asciis[i].length();
+            if (l > maxStringLength) {
+                maxStringLength = l;
+            }
+            sorted[i] = asciis[i];
+        }
+        // Sort from the right char
+        int charIndex = maxStringLength - 1;
+        while (charIndex >= 0) {
+            int[] count = new int[256];
+            String[] temp = new String[inputLength];
+            // count String char at the same position, if there is no char count[0] += 1
+            for (int i = 0; i < inputLength; i += 1) {
+                if (sorted[i].length() < charIndex + 1) {
+                    count[0] += 1;
+                } else {
+                    count[(int)sorted[i].charAt(charIndex)] += 1;
+                }
+                temp[i] = sorted[i];
+            }
+            // count[] change to position[]
+            for (int i = 1; i < count.length; i += 1) {
+                count[i] += count[i - 1];
+            }
+
+            for (int i = inputLength - 1; i >= 0; i -= 1) {
+                if (temp[i].length() < charIndex + 1) {
+                    sorted[count[0] - 1] = temp[i];
+                    count[0] -= 1;
+                } else {
+                    sorted[count[(int)temp[i].charAt(charIndex)] - 1] = temp[i];
+                    count[(int)temp[i].charAt(charIndex)] -= 1;
+                }
+            }
+            charIndex -= 1;
+        }
+        return sorted;
     }
 
     /**
@@ -44,5 +85,17 @@ public class RadixSort {
     private static void sortHelperMSD(String[] asciis, int start, int end, int index) {
         // Optional MSD helper method for optional MSD radix sort
         return;
+    }
+
+    public static void main(String[] args) {
+        String[] unsorted = {"elephant", "apple", "ball", "zoo", "lion", "cellphone", "window", "123", "cell"};
+        String[] sorted = RadixSort.sort(unsorted);
+        for (String s : unsorted) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+        for (String s : sorted) {
+            System.out.print(s + " ");
+        }
     }
 }
